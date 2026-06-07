@@ -1,9 +1,14 @@
 pipeline {
     agent any
     stages {
+        stage('Clone') {
+            steps {
+                checkout scm
+            }
+        }
         stage('Build Image') { 
             steps { 
-                sh 'docker build -t jakimovskiandrej/my-nginx-app .' 
+                sh '/usr/bin/docker build -t jakimovskiandrej/my-nginx-app .' 
             } 
         }
         stage('Push Image') {
