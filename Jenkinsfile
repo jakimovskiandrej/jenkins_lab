@@ -1,24 +1,14 @@
 pipeline {
     agent any
-
     stages {
-        stage('Clone repository') {
+        stage('Clone Repository') { steps { checkout scm } }
+        stage('Build Image') { steps { sh 'docker build -t my-nginx-app .' } }
+        stage('Push Image') {
             steps {
-                git credentialsId: 'github-creds', url: 'https://github.com/jakimovskiandrej/KIII_JenkinsLab.git'
-            }
-        }
-
-        stage('Build image') {
-            steps {
-                sh 'docker build -t jakimovskiandrej/kiii-jenkinslab:latest .'
-            }
-        }
-
-        stage('Push image') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-creds', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                    sh 'echo $PASS | docker login -u $USER --password-stdin'
-                    sh 'docker push jakimovskiandrej/kiii-jenkinslab:latest'
+                script {
+                    docker.withRegistry('', 'docker-hub-credentials') {
+                        docker.image('my-nginx-app').push('latest')
+                    }
                 }
             }
         }
